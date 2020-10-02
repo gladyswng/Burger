@@ -24,7 +24,7 @@ class BurgerBuilder extends Component {
 
   componentDidMount() {
     console.log(this.props)
-    this.props.initIngredients 
+    this.props.initIngredients() 
   }
 
   updatePurchaseState(ingredients) {
@@ -39,13 +39,28 @@ class BurgerBuilder extends Component {
     return sum > 0 
   }
 
+  // purchaseHandler = () => {
+  //   //query params before redux
+  //   this.props.history.push('/checkout')
+  // };
+
+
   purchaseHandler = () => {
-    //query params before redux
+    this.setState( { purchasing: true } )
+}
+
+purchaseCancelHandler = () => {
+    this.setState( { purchasing: false } )
+}
+
+purchaseContinueHandler = () => {
+    this.props.purchaseInit()
     this.props.history.push('/checkout')
-  };
+}
+
 
   render() {
-    console.log(this.props.ings)
+
     const disabledInfo = {
       ...this.props.ings
     };
@@ -58,13 +73,14 @@ class BurgerBuilder extends Component {
 
     // Since Modal trigges by shouldComponentUpdate -- only updates when show is true, need to add more condition there at Modal.js
 
-    let burger = this.state.error ? (
+    let burger = this.props.error ? (
       <p>Ingredients can't be loaded</p>
     ) : (
       <Spinner />
     );
     // Overwrite when this.state.ingredients is not null
     if (this.props.ings) {
+
       burger = (
         <Aux>
           <Burger ingredients={this.props.ings} />
@@ -81,7 +97,8 @@ class BurgerBuilder extends Component {
         </Aux>
 
         // This is for setting ingredients to null since we changed to firebase
-      );
+      )
+    
       orderSummary = (
         <OrderSummary
           ingredients={this.props.ings}

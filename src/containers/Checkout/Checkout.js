@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Route, useHistory, useLocation } from 'react-router-dom'
+import { Route, Redirect, useHistory, useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary'
 import ContactData from './ContactData/ContactData'
+import * as actions from '../../store/actions'
 
 const Checkout = (props) => {
   const history = useHistory()
@@ -23,35 +24,34 @@ const Checkout = (props) => {
     history.replace('/checkout/contact-data')
   }
 
-  return (
-    <div>
-      {props.ings && 
-      <React.Fragment>
-      <CheckoutSummary 
-      ingredients={props.ings}
-      checkoutCancelled={checkoutCancelledHandler}
-      checkoutContinued={checkoutContinuedHandler}
-      />
-
-       <Route path='/checkout/contact-data'>
-        <ContactData 
+  let summary = <Redirect to='/'/>
+  if (props.ings) {
+    console.log(props.purshased)
+    const purcahsedRedirect = props.purshased? <Redirect to='/' /> : null
+    summary = (
+      <div>
+        {purcahsedRedirect}
+        <CheckoutSummary 
         ingredients={props.ings}
-    
+        checkoutCancelled={checkoutCancelledHandler}
+        checkoutContinued={checkoutContinuedHandler}
         />
-      </Route>
+        <Route path='/checkout/contact-data'>
+          <ContactData 
+          ingredients={props.ings}/>
+        </Route>
+      </div>
+    )
+  }
 
-
-      {/* <Route path='/checkout/contact-data' 
-      component={ContactData}/> */}
-      </React.Fragment>}
-    </div>
-
-  )
+  return summary
 }
 
 const mapStateToProps = state => {
+
   return {
-    ings: state.burgerBuilder.ingredients
+    ings: state.burgerBuilder.ingredients,
+    purshased: state.order.purchased
   }
 }
 

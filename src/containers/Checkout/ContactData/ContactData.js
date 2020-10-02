@@ -7,11 +7,12 @@ import Button from '../../../components/UI/Button/Button'
 import Spinner from '../../../components/UI/Spinner/Spinner'
 import Input from '../../../components/UI/Input/Input'
 import classes from './ContactData.css'
-
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler'
+import * as actions from '../../../store/actions'
 const ContactData = (props) => {
   const history = useHistory()
   const [ formIsValid, setFormIsValid ] = useState()
-  console.log(formIsValid)
+
   const [ orderForm, setOrderForm ] = useState({
     name: {
       elementType: 'input',
@@ -94,12 +95,14 @@ const ContactData = (props) => {
     }
   })
 
-  const [ loading, setLoading ] = useState(false)
 
 
 
   const checkValidity = (value, rules) => {
     let isValid = true
+    if (!rules) {
+      return true
+    }
     if (rules.required) {
       isValid = value.trim() !== '' && isValid
     }
@@ -111,6 +114,16 @@ const ContactData = (props) => {
     if (rules.maxLength) {
       isValid = value.length <= rules.maxLength && isValid
     }
+    if (rules.isEmail) {
+      const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+      isValid = pattern.test(value) && isValid
+    }
+
+    if (rules.isNumeric) {
+      const pattern = /^\d+$/
+      isValid = pattern.test(value) && isValid
+    }
+    // if email and if nummeric
     return isValid
 
 
@@ -119,8 +132,6 @@ const ContactData = (props) => {
   const orderHandler = (e) => {
     e.preventDefault()
 
-    setLoading(true);
-    console.log(props.price)
     const formData = {}
     for (let formElementIdentifier in orderForm) {
       formData[formElementIdentifier] = orderForm[formElementIdentifier].value
@@ -133,15 +144,7 @@ const ContactData = (props) => {
       orderData: formData
     }
 
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        setLoading(false)
-        history.push('/')
-      })
-      .catch(error => {
-        setLoading(false)
-      });
+    props.purchaseBurger(order)
   }
 
   useEffect(() => {
@@ -158,7 +161,7 @@ const ContactData = (props) => {
 
   const inputChangeHandler = (e, inputIndentifier) => {
     e.persist()
-    console.log(e.target.value)
+
   
     setOrderForm((prevOrderForm) => {
       const updatedOrderForm = {...prevOrderForm}
@@ -173,7 +176,7 @@ const ContactData = (props) => {
       updatedFormElement.value = e.target.value
       updatedFormElement.valid = checkValidity(updatedFormElement.value, updatedFormElement.validation)
       updatedFormElement.touched = true
-      console.log(updatedFormElement)
+      
 
       updatedOrderForm[inputIndentifier] = updatedFormElement
       
@@ -212,7 +215,7 @@ const ContactData = (props) => {
         >ORDER</Button>
       </form>
   )
-  if (loading) {
+  if (props.loading) {
     form = <Spinner />
   } 
 
@@ -228,9 +231,11 @@ const ContactData = (props) => {
 
 const mapStateToProps = state => {
   return {
-    price: state.burgerBuilder.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    price: state.burgerBuilder.totalPrice,
+    loading: state.order.loading
   }
 }
 
-export default connect(mapStateToProps)(ContactData)
+export default connect(mapStateToProps, actions)(withErrorHandler(ContactData, axios))
 

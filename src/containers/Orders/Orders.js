@@ -2,35 +2,24 @@ import React, { useEffect, useState } from 'react'
 import Order from '../../components/Order/Order'
 import axios from '../../axios-orders'
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
+import { connect } from 'react-redux'
+import * as actions from '../../store/actions'
+import Spinner from '../../components/UI/Spinner/Spinner'
 
 
-const Orders = () => {
-  const [ orders, setOrders ] = useState([])
-  const [ loading, setLoading ] = useState(false)
+
+const Orders = (props) => {
+
   
   useEffect(() => {
-    axios.get('/orders.json')
-      .then(res => {
-        // We get back an object with IDs as properties, there for need to turn into array
-        const fetchedOrders =[]
-        for (let key in res.data) {
-          fetchedOrders.push({
-            ...res.data[key],
-            id: key
-          })
-        }
-
-        setLoading(false)
-        setOrders(fetchedOrders)
-        console.log(fetchedOrders)
-      })
-      .catch(err => {
-        setLoading(false)
-      })
+    props.fetchOrders()
   }, [])
-  return (
-    <div>
-      {orders.map(order => {
+
+  let orders = <Spinner />
+  if (!props.loading) {
+    orders = (
+      <React.Fragment>
+      {props.orders.map(order => {
         return <Order 
         key={order.id}
         ingredients={order.ingredients}
@@ -39,8 +28,21 @@ const Orders = () => {
       })}
       
     
+    </React.Fragment>
+    )
+  }
+  return (
+    <div>
+      {orders}
     </div>
   )
 }
 
-export default withErrorHandler(Orders, axios)
+const mapStateToProps = state => {
+  return {
+    orders: state.order.orders,
+    loading: state.order.loading
+  }
+}
+
+export default connect(mapStateToProps, actions)(withErrorHandler(Orders, axios))
