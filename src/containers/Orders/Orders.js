@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import Order from '../../components/Order/Order'
 import axios from '../../axios-orders'
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
@@ -12,7 +12,7 @@ const Orders = (props) => {
 
   
   useEffect(() => {
-    props.fetchOrders()
+    props.fetchOrders(props.token, props.userId)
   }, [])
 
   let orders = <Spinner />
@@ -41,7 +41,9 @@ const Orders = (props) => {
 const mapStateToProps = state => {
   return {
     orders: state.order.orders,
-    loading: state.order.loading
+    loading: state.order.loading,
+    token: state.auth.token,
+    userId: state.auth.userId
   }
 }
 

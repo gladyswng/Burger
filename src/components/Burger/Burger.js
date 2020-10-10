@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useHistory, withRouter } from 'react-router-dom'
+import { useHistory, withRouter } from 'react-router-dom'
 import classes from "./Burger.css";
 import BurgerIngredient from "./BurgerIngredient/BurgerIngredient";
 import "./Burger.css";

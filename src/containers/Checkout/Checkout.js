@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Route, Redirect, useHistory, useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary'
 import ContactData from './ContactData/ContactData'
-import * as actions from '../../store/actions'
+
 
 const Checkout = (props) => {
   const history = useHistory()
@@ -26,7 +26,7 @@ const Checkout = (props) => {
 
   let summary = <Redirect to='/'/>
   if (props.ings) {
-    console.log(props.purshased)
+
     const purcahsedRedirect = props.purshased? <Redirect to='/' /> : null
     summary = (
       <div>

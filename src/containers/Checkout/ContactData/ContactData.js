@@ -9,6 +9,8 @@ import Input from '../../../components/UI/Input/Input'
 import classes from './ContactData.css'
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler'
 import * as actions from '../../../store/actions'
+import { checkValidity } from '../../../shared/utility'
+
 const ContactData = (props) => {
   const history = useHistory()
   const [ formIsValid, setFormIsValid ] = useState()
@@ -97,38 +99,6 @@ const ContactData = (props) => {
 
 
 
-
-  const checkValidity = (value, rules) => {
-    let isValid = true
-    if (!rules) {
-      return true
-    }
-    if (rules.required) {
-      isValid = value.trim() !== '' && isValid
-    }
-
-    if (rules.minLength) {
-      isValid = value.length >= rules.minLength && isValid
-    }
-
-    if (rules.maxLength) {
-      isValid = value.length <= rules.maxLength && isValid
-    }
-    if (rules.isEmail) {
-      const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-      isValid = pattern.test(value) && isValid
-    }
-
-    if (rules.isNumeric) {
-      const pattern = /^\d+$/
-      isValid = pattern.test(value) && isValid
-    }
-    // if email and if nummeric
-    return isValid
-
-
-
-  }
   const orderHandler = (e) => {
     e.preventDefault()
 
@@ -141,10 +111,11 @@ const ContactData = (props) => {
     const order = {
       ingredients: props.ings,
       price: props.price,
-      orderData: formData
+      orderData: formData,
+      userId: props.userId
     }
 
-    props.purchaseBurger(order)
+    props.purchaseBurger(order, props.token)
   }
 
   useEffect(() => {
@@ -233,7 +204,9 @@ const mapStateToProps = state => {
   return {
     ings: state.burgerBuilder.ingredients,
     price: state.burgerBuilder.totalPrice,
-    loading: state.order.loading
+    loading: state.order.loading,
+    token: state.auth.token,
+    userId: state.auth.userId
   }
 }
 

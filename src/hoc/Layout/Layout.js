@@ -1,40 +1,54 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
+import { connect } from 'react-redux'
 import Aux from "../Aux/Aux";
 import classes from "./Layout.css";
 import Toolbar from "../../components/Navigation/Toolbar/Toolbar";
 import SideDrawer from "../../components/Navigation/SideDrawer/SideDrawer";
 
-class Layout extends Component {
-  state = {
-    showSideDrawer: false
-  };
+const Layout = (props) => {
+  // state = {
+  //   showSideDrawer: false
+  // };
+  const [ showSideDrawer, setShowSlideDrawer ] = useState(false)
 
-  sideDrawerClosedHandler = () => {
-    this.setState( { showSideDrawer: false } );
-}
 
-sideDrawerToggleHandler = () => {
-    this.setState( ( prevState ) => {
-        return { showSideDrawer: !prevState.showSideDrawer };
-    } );
+  const sideDrawerClosedHandler = () => {
+    setShowSlideDrawer(false)
+    // this.setState( { showSideDrawer: false } );
+  }
+
+  const sideDrawerToggleHandler = () => {
+  setShowSlideDrawer(!showSideDrawer)
+    // this.setState( ( prevState ) => {
+    //     return { showSideDrawer: !prevState.showSideDrawer };
+    // } );
 }
 
   //this.setState({ showSideDrawer: !this.state.showSideDrawer });
   // Due to the asynchronous nature of set state, you'll get unexpected outcomes
-
-  render() {
+  
+ 
+ 
     return (
       <Aux>
-        <Toolbar drawerToggleClicked={this.sideDrawerToggleHandler} />
+        <Toolbar 
+        isAuth={props.isAuthenticated}
+        drawerToggleClicked={sideDrawerToggleHandler} />
         <SideDrawer
-            open={this.state.showSideDrawer}
-            closed={this.sideDrawerClosedHandler} />
+            isAuth={props.isAuthenticated}
+            open={showSideDrawer}
+            closed={sideDrawerClosedHandler} />
         <main className={classes.Content}>
-            {this.props.children}
+            {props.children}
         </main>
       </Aux>
     );
+}
+
+const mapStateToProps = state => {
+  return {
+    isAuthenticated: state.auth.token !== null
   }
 }
 
-export default Layout;
+export default connect(mapStateToProps)(Layout)
